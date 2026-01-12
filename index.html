@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Un detalle</title>
+
+  <!-- =========================
+       FUENTES
+       ========================= -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #f6f4f1;
+      --text-color: #2f2f2f;
+      --accent-color: #c9b8a5;
+      --button-bg: #2f2f2f;
+      --button-text: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    .intro-text {
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .divider {
+      width: 60px;
+      height: 1px;
+      background-color: var(--accent-color);
+      margin: 24px auto;
+    }
+
+    button {
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: none;
+      padding: 14px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .hint {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-bottom: 24px;
+    }
+
+    .message {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      line-height: 1.5;
+      margin: 32px 0;
+      min-height: 80px;
+      transition: color 0.4s ease, font-style 0.4s ease;
+    }
+  </style>
+</head>
+
+<body>
+
+<canvas id="confettiCanvas"></canvas>
+
+<div class="container">
+
+  <div id="home" class="screen active">
+    <h1>Hoy no es un día cualquiera.</h1>
+    <div class="divider"></div>
+    <p class="intro-text">
+      Esto no es una carta larga<br>
+      ni algo que tengas que responder.<br>
+      Es solo un detalle por tu cumpleaños.
+    </p>
+    <button onclick="goToGenerator()">Ver algo pequeño</button>
+  </div>
+
+  <div id="generator" class="screen">
+    <p class="hint">
+      Puedes tocar esto las veces que quieras.<br>
+      O no tocarlo.
+    </p>
+    <button onclick="showMessage()">Hoy</button>
+    <div id="message" class="message"></div>
+  </div>
+
+</div>
+
+<script>
+  /* =========================
+     CONFETI
+     ========================= */
+  const canvas = document.getElementById("confettiCanvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const confettiPieces = [];
+  const confettiColors = ["#c9b8a5", "#e6dace", "#bfa98c", "#d8cfc4"];
+
+  function createConfetti(x, y) {
+    for (let i = 0; i < 40; i++) {
+      confettiPieces.push({
+        x,
+        y,
+        size: Math.random() * 6 + 4,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        speedX: (Math.random() - 0.5) * 6,
+        speedY: Math.random() * -14 - 8,
+        gravity: 0.3,
+        opacity: 1
+      });
+    }
+  }
+
+  function drawConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confettiPieces.forEach((p, i) => {
+      p.speedY += p.gravity;
+      p.x += p.speedX;
+      p.y += p.speedY;
+      p.opacity -= 0.01;
+      ctx.globalAlpha = p.opacity;
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+      if (p.opacity <= 0) confettiPieces.splice(i, 1);
+    });
+    ctx.globalAlpha = 1;
+    if (confettiPieces.length > 0) requestAnimationFrame(drawConfetti);
+  }
+
+  window.addEventListener("load", () => {
+    createConfetti(0, canvas.height);
+    createConfetti(canvas.width, canvas.height);
+    drawConfetti();
+    setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 3500);
+  });
+
+  /* =====================================================
+     🎶 MÚSICA – DECK ALEATORIO (CAMBIO SOLO AL TERMINAR MP3)
+     ===================================================== */
+
+  const musicTracks = [
+    "SIMPLE.mp3",
+    "BB-BAILE.mp3",
+    "OJITOSLINDOS.mp3",
+    
+  ];
+
+  let audio = new Audio();
+  audio.volume = 0.35;
+
+  let musicDeck = [];
+  let musicStarted = false;
+
+  function shuffleDeck(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function resetMusicDeck() {
+    musicDeck = shuffleDeck([...musicTracks]);
+  }
+
+  function playNextTrack() {
+    if (musicDeck.length === 0) {
+      resetMusicDeck();
+    }
+    const next = musicDeck.shift();
+    audio.src = next;
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  }
+
+  audio.addEventListener("ended", playNextTrack);
+
+  /* =========================
+     FRASES
+     ========================= */
+  const messages = [
+    "Hay personas que marcan una etapa sin quedarse.",
+    "Algunas conexiones no se rompen, solo cambian de forma.",
+    "No todo lo valioso necesita continuidad.",
+    "Hoy también es suficiente.",
+    "Las cosas simples a veces duran más en la memoria."
+  ];
+
+  const styleVariations = [
+    { color: "#2f2f2f", fontStyle: "normal" },
+    { color: "#3a3a3a", fontStyle: "italic" },
+    { color: "#262626", fontStyle: "normal" }
+  ];
+
+  function goToGenerator() {
+    document.getElementById("home").classList.remove("active");
+    document.getElementById("generator").classList.add("active");
+
+    if (!musicStarted) {
+      musicStarted = true;
+      resetMusicDeck();
+      playNextTrack();
+    }
+  }
+
+  function showMessage() {
+    const box = document.getElementById("message");
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    const style = styleVariations[Math.floor(Math.random() * styleVariations.length)];
+    box.style.opacity = 0;
+    setTimeout(() => {
+      box.textContent = msg;
+      box.style.color = style.color;
+      box.style.fontStyle = style.fontStyle;
+      box.style.opacity = 1;
+    }, 300);
+  }
+</script>
+
+</body>
+</html>
