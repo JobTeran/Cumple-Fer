@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Un detalle</title>
 
-  <!-- =========================
-       FUENTES
-       ========================= -->
+  <!-- FUENTES -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -21,11 +19,7 @@
       --button-text: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background-color: var(--bg-color);
@@ -39,10 +33,8 @@
 
     #confettiCanvas {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       z-index: 1;
     }
@@ -56,14 +48,8 @@
       z-index: 2;
     }
 
-    .screen {
-      display: none;
-      animation: fadeIn 0.8s ease forwards;
-    }
-
-    .screen.active {
-      display: block;
-    }
+    .screen { display: none; animation: fadeIn 0.8s ease forwards; }
+    .screen.active { display: block; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -99,10 +85,6 @@
       cursor: pointer;
     }
 
-    button:hover {
-      opacity: 0.9;
-    }
-
     .hint {
       font-size: 13px;
       opacity: 0.7;
@@ -116,6 +98,15 @@
       margin: 32px 0;
       min-height: 80px;
       transition: color 0.4s ease, font-style 0.4s ease;
+    }
+
+    /* 🐶 IMAGEN */
+    #randomImage {
+      max-width: 100%;
+      border-radius: 14px;
+      margin-top: 16px;
+      display: none;
+      animation: fadeIn 0.6s ease;
     }
   </style>
 </head>
@@ -144,17 +135,19 @@
     </p>
     <button onclick="showMessage()">Hoy</button>
     <div id="message" class="message"></div>
+
+    <!-- 🐶 IMAGEN -->
+    <img id="randomImage" />
   </div>
 
 </div>
 
 <script>
   /* =========================
-     CONFETI
+     CONFETI (SIN CAMBIOS)
      ========================= */
   const canvas = document.getElementById("confettiCanvas");
   const ctx = canvas.getContext("2d");
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
@@ -164,8 +157,7 @@
   function createConfetti(x, y) {
     for (let i = 0; i < 40; i++) {
       confettiPieces.push({
-        x,
-        y,
+        x, y,
         size: Math.random() * 6 + 4,
         color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
         speedX: (Math.random() - 0.5) * 6,
@@ -177,68 +169,61 @@
   }
 
   function drawConfetti() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    confettiPieces.forEach((p, i) => {
-      p.speedY += p.gravity;
-      p.x += p.speedX;
-      p.y += p.speedY;
-      p.opacity -= 0.01;
-      ctx.globalAlpha = p.opacity;
-      ctx.fillStyle = p.color;
-      ctx.fillRect(p.x, p.y, p.size, p.size);
-      if (p.opacity <= 0) confettiPieces.splice(i, 1);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confettiPieces.forEach((p,i)=>{
+      p.speedY+=p.gravity; p.x+=p.speedX; p.y+=p.speedY; p.opacity-=0.01;
+      ctx.globalAlpha=p.opacity; ctx.fillStyle=p.color;
+      ctx.fillRect(p.x,p.y,p.size,p.size);
+      if(p.opacity<=0) confettiPieces.splice(i,1);
     });
-    ctx.globalAlpha = 1;
-    if (confettiPieces.length > 0) requestAnimationFrame(drawConfetti);
+    ctx.globalAlpha=1;
+    if(confettiPieces.length>0) requestAnimationFrame(drawConfetti);
   }
 
-  window.addEventListener("load", () => {
-    createConfetti(0, canvas.height);
-    createConfetti(canvas.width, canvas.height);
+  window.addEventListener("load",()=>{
+    createConfetti(0,canvas.height);
+    createConfetti(canvas.width,canvas.height);
     drawConfetti();
-    setTimeout(() => ctx.clearRect(0, 0, canvas.width, canvas.height), 3500);
+    setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height),3500);
   });
 
-  /* =====================================================
-     🎶 MÚSICA – DECK ALEATORIO (CAMBIO SOLO AL TERMINAR MP3)
-     ===================================================== */
+  /* 🎶 MÚSICA (SIN CAMBIOS) */
+  const musicTracks = ["SIMPLE.mp3","BB-BAILE.mp3","OJITOSLINDOS.mp3"];
+  let audio = new Audio(); audio.volume=0.35;
+  let musicDeck=[]; let musicStarted=false;
 
-  const musicTracks = [
-    "SIMPLE.mp3",
-    "BB-BAILE.mp3",
-    "OJITOSLINDOS.mp3",
-    
+  function shuffleDeck(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function resetMusicDeck(){musicDeck=shuffleDeck([...musicTracks]);}
+  function playNextTrack(){
+    if(musicDeck.length===0) resetMusicDeck();
+    audio.src=musicDeck.shift(); audio.play().catch(()=>{});
+  }
+  audio.addEventListener("ended",playNextTrack);
+
+  /* =========================
+     🐶 IMÁGENES – DECK
+     ========================= */
+  const images = [
+    "JONIS1.jpeg",
+    "JONIS2.jpeg",
+"JONIS3.jpeg",
+    "JONIS4.jpeg","MILA1.jpeg",
+    "MILA2.jpeg","MILA3.jpeg",
+    "MILA4.jpeg", "MILA4.jpeg"
   ];
 
-  let audio = new Audio();
-  audio.volume = 0.35;
+  let imageDeck = [];
 
-  let musicDeck = [];
-  let musicStarted = false;
-
-  function shuffleDeck(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+  function resetImageDeck() {
+    imageDeck = shuffleDeck([...images]);
   }
 
-  function resetMusicDeck() {
-    musicDeck = shuffleDeck([...musicTracks]);
+  function showNextImage() {
+    if (imageDeck.length === 0) resetImageDeck();
+    const img = document.getElementById("randomImage");
+    img.src = imageDeck.shift();
+    img.style.display = "block";
   }
-
-  function playNextTrack() {
-    if (musicDeck.length === 0) {
-      resetMusicDeck();
-    }
-    const next = musicDeck.shift();
-    audio.src = next;
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  }
-
-  audio.addEventListener("ended", playNextTrack);
 
   /* =========================
      FRASES
@@ -260,25 +245,21 @@
   function goToGenerator() {
     document.getElementById("home").classList.remove("active");
     document.getElementById("generator").classList.add("active");
-
-    if (!musicStarted) {
-      musicStarted = true;
-      resetMusicDeck();
-      playNextTrack();
-    }
+    if(!musicStarted){musicStarted=true; resetMusicDeck(); resetImageDeck(); playNextTrack();}
   }
 
   function showMessage() {
-    const box = document.getElementById("message");
-    const msg = messages[Math.floor(Math.random() * messages.length)];
-    const style = styleVariations[Math.floor(Math.random() * styleVariations.length)];
-    box.style.opacity = 0;
-    setTimeout(() => {
-      box.textContent = msg;
-      box.style.color = style.color;
-      box.style.fontStyle = style.fontStyle;
-      box.style.opacity = 1;
-    }, 300);
+    const box=document.getElementById("message");
+    const msg=messages[Math.floor(Math.random()*messages.length)];
+    const style=styleVariations[Math.floor(Math.random()*styleVariations.length)];
+    box.style.opacity=0;
+    setTimeout(()=>{
+      box.textContent=msg;
+      box.style.color=style.color;
+      box.style.fontStyle=style.fontStyle;
+      box.style.opacity=1;
+      showNextImage(); // 🐶 CAMBIA IMAGEN CON FRASE
+    },300);
   }
 </script>
 
